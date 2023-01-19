@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-
+use Illuminate\Support\Facades\Crypt;
+use Validator;
+use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
@@ -23,19 +25,68 @@ class AuthController extends Controller
     public function login(Request $request)
     {
 
-        $this->validate($request, [
-            'email' => 'required|string',
-            'password' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|min:4',
+            'password' => 'required|min:6'
+        ],
+        [
+            'required'  => ':attribute harus diisi',
+            'min'       => ':attribute minimal :min karakter',
         ]);
 
-        $credentials = $request->only(['email', 'password']);
-
-        if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        if ($validator->fails()) {
+            $resp = [
+                'metadata' => [
+                        'message' => $validator->errors()->first(),
+                        'code'    => 422
+                    ]
+                ];
+            return response()->json($resp, 422);
+            die();
         }
 
-        return $this->respondWithToken($token);
+        $user = User::where('email', $request->email)->first();
+        if($user)
+        {
+            if( password_verify($request->password,$user->password))
+            {
+
+                $token = \Auth::login($user);
+                $resp = [
+                    'response' => [
+                        'token'=> $token
+                    ],
+                    'metadata' => [
+                        'message' => 'OK',
+                        'code'    => 200
+                    ]
+                ];
+
+                return response()->json($resp);
+            }else{
+
+                $resp = [
+                    'metadata' => [
+                        'message' => 'Wrong Password',
+                        'code'    => 401
+                    ]
+                ];
+
+                return response()->json($resp, 401);
+            }
+        }else{
+            $resp = [
+                'metadata' => [
+                    'message' => 'User Not Found',
+                    'code'    => 401
+                ]
+            ];
+
+            return response()->json($resp, 401);
+        }
+
     }
+
 
      /**
      * Get the authenticated User.
@@ -83,6 +134,14 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'user' => auth()->user(),
             'expires_in' => auth()->factory()->getTTL() * 60 * 24
+        ]);
+    }
+
+    public function register(){
+        $users = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password)
         ]);
     }
 }

@@ -61,6 +61,7 @@ $app->configure('jwt');
 
 $app->configure('app');
 $app->configure('auth');
+$app->configure('queue');
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -93,7 +94,9 @@ $app->routeMiddleware([
 */
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 // $app->register(App\Providers\AppServiceProvider::class);
+$app->register(Illuminate\Mail\MailServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*
