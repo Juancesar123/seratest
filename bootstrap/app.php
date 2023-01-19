@@ -63,6 +63,7 @@ $app->configure('app');
 $app->configure('auth');
 $app->configure('queue');
 $app->configure('mail');
+$app->configure('firebase');
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -98,6 +99,8 @@ $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
+$app->register(Kreait\Laravel\Firebase\ServiceProvider::class);
+
 // $app->register(App\Providers\EventServiceProvider::class);
 
 /*

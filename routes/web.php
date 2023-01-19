@@ -17,9 +17,9 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-Route::group([
 
-    'prefix' => 'api'
+Route::group([
+    'prefix' => 'api',
 
 ], function ($router) {
 
@@ -27,6 +27,19 @@ Route::group([
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
     Route::post('refresh', 'AuthController@refresh');
+
+});
+
+Route::group([
+    'prefix' => 'api',
+    'middleware' => 'auth:api',
+    'except' => ['login', 'refresh', 'logout','register']
+
+], function ($router) {
+    Route::post('profile/create','ProfileController@create');
+    Route::get('profile','ProfileController@index');
+    Route::put('profile/update/{id}','ProfileController@edit');
+    Route::delete('profile/delete/{id}','ProfileController@delete');
     Route::post('user-profile', 'AuthController@me');
 
 });
