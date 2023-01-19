@@ -62,6 +62,7 @@ $app->configure('jwt');
 $app->configure('app');
 $app->configure('auth');
 $app->configure('queue');
+$app->configure('mail');
 /*
 |--------------------------------------------------------------------------
 | Register Middleware

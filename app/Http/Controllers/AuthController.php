@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
+use App\Jobs\SendMailJob;
 use Validator;
 use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
@@ -14,7 +15,7 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'logout']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'logout','register']]);
     }
     /**
      * Get a JWT via given credentials.
@@ -137,11 +138,35 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(){
+    public function register(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|min:4',
+            'password' => 'required|min:6'
+        ],
+        [
+            'required'  => ':attribute harus diisi',
+            'min'       => ':attribute minimal :min karakter',
+        ]);
+
+        if ($validator->fails()) {
+            $resp = [
+                'metadata' => [
+                        'message' => $validator->errors()->first(),
+                        'code'    => 422
+                    ]
+                ];
+            return response()->json($resp, 422);
+            die();
+        }
         $users = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
+        $data = array(
+            "name" => $request->name,
+            "email" => $request->email
+        );
+        dispatch(new SendMailJob($data));
     }
 }
