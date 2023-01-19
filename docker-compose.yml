@@ -29,7 +29,9 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+      - mysql_files:/var/lib/mysql-files
     networks:
       - lumen
   php:
@@ -59,5 +61,6 @@ services:
     - lumen
 volumes:
   mysql_data:
+  mysql_files:
   php_data:
   redis_data:

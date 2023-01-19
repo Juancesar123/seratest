@@ -7,11 +7,9 @@ use Validator;
 class FilterController extends Controller
 {
     public function index(){
+        // get real path
         $file_path = realpath(__DIR__ . '/../../../public/data.json');
-      //  dd($file_path);
         $json = json_decode(file_get_contents($file_path,null), true);
-
-       // dd($json['data']['response']['billdetails'] );
         $dataresult = array();
         foreach ($json['data']['response']['billdetails'] as $key => $value) {
             $array = explode(': ', $value['body'][0], 2);
